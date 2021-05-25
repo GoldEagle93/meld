@@ -7,14 +7,14 @@ Intro
 
 In this tutorial we are going to prepare a setup script and other necessary files required for a Protein-DNA simulation. It is recommended that you review "getting started" before this one. The ideal goal of this part is to sample many binding/unbinfding events so that the protein has enough chances of exploring and finding the right binding pose. For sake of simplicity, I'm using 1azp, a small protein-DNA complex from PDB. Here's a list of files needed for this tutorial:
 
-DNA-sequence.dat
-DNA-hbonds.dat
-secondary-structure.ss
-protein-DNA-contacts.dat
-protein-contacts.dat
-starting-structure.pdb
-restraints.py
-setupMELD.py
+| DNA-sequence.dat
+| DNA-hbonds.dat
+| secondary-structure.ss
+| protein-DNA-contacts.dat
+| protein-contacts.dat
+| starting-structure.pdb
+| restraints.py
+| setupMELD.py
 
 DNA-sequence.dat
 ----------------------------
