@@ -63,7 +63,7 @@ Note that here we put a distance of 8.0 for all pairs. Down the way we have the 
 protein-DNA-contacts.dat
 ----------------------------
 
-Since we are not interested in denaturing the protein at high temperature, we need to keep it's tertiary structure with some room for flexibility. We use the python script ``calculate-protein-contacts.py`` to find the backbone ``CA``s that are in proximity of each other and apply restraints on their pairwise distances to keep the conformation as it is.
+Since we are not interested in denaturing the protein at high temperature, we need to keep it's tertiary structure with some room for flexibility. We use the python script ``calculate-protein-contacts.py`` to find the backbone ``CAs`` that are in proximity of each other and apply restraints on their pairwise distances to keep the conformation as it is.
 
 starting-structure.pdb
 ----------------------------
