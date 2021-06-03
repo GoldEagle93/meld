@@ -22,7 +22,7 @@ DNA-sequence.dat
 ----------------------------
 This is a simple dat file with the sequence of the first DNA strand in FASTA format without the header:
 
-''GCGATCGC''
+``GCGATCGC``
 
 DNA-hbonds.dat
 ----------------------------
