@@ -38,6 +38,14 @@ block or quoted text is a literal block.
   Whitespace, newlines, blank lines, and  all kinds of
   markup (like *this* or \this) is preserved here.
 
+::
+
+  1 N2 16 O2 3.0
+  
+  1 N1 16 N3 3.0
+  
+  1 O6 16 N4 3.0
+
 
 ::
   1 N2 16 O2 3.0
