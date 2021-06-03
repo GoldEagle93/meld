@@ -44,6 +44,19 @@ This is another plain text file in which there is a character specifying the sec
 ::
 
   ..................EEEEEE.....EE.HHH....EEE..EEEEEE.................HHHHHHHHHHHHH..
+  
+You can calculate secondary structures with psipred and modify the output to match the format required by MELD.
+
+protein-DNA-contacts.dat
+----------------------------
+Here's where you will feed data into MELD. Whatever the source of your data, it will need to be simplified into a set of atom-atom contacts that will be used to specify restraints. Since 1azp is already a solved crystal structure, you can pick a bunch of atoms from protein and DNA that are interacting at the interface. Here I used ``O5'`` and ``CB`` which are parts of the backbone of the protein and DNA, respectively. Here's the first five lines the file:
+::
+
+  22  CB 14 P 8.0
+  
+  22  CB 15 P 8.0
+  
+  22  CB 16 P 8.0
 
 setupMELD.py
 ----------------------------
