@@ -21,6 +21,7 @@ In this tutorial we are going to prepare a setup script and other necessary file
 DNA-sequence.dat
 ----------------------------
 This is a simple dat file with the sequence of the first DNA strand in FASTA format without the header:
+
 ''GCGATCGC''
 
 DNA-hbonds.dat
