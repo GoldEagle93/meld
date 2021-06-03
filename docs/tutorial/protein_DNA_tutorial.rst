@@ -58,6 +58,23 @@ Here's where you will feed data into MELD. Whatever the source of your data, it 
   
   22  CB 16 P 8.0
 
+Note that here we put a distance of 8.0 for all pairs. Down the way we have the option to use this number or specify another desired distance that should be satisfied.
+
+protein-DNA-contacts.dat
+----------------------------
+
+Since we are not interested in denaturing the protein at high temperature, we need to keep it's tertiary structure with some room for flexibility. We use the python script ``calculate-protein-contacts.py`` to find the backbone ``CA``s that are in proximity of each other and apply restraints on their pairwise distances to keep the conformation as it is.
+
+starting-structure.pdb
+----------------------------
+
+The PDB file from which REMD will start. It is best to minimize this structure (using Amber, Gromacs, NAMD, etc.) before giving it to MELD. Also I have separated the protein from the DNA to prevent it from being trapped in a pose that we know is already favored in the first place.
+
+restraints.py
+----------------------------
+
+A set of functions to define restraints based on files specified in setupMELD.py. We generally don't need to modify this file. It has been part of setupMELD.py which is now taken into a new file for simplicity.
+
 setupMELD.py
 ----------------------------
 
