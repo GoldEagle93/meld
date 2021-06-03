@@ -33,7 +33,7 @@ Here's the first five lines of the file::
     
 1 N1 16 N3 3.0
     
-1 O6 16 N4 3.0``
+1 O6 16 N4 3.0
 
 setupMELD.py
 ----------------------------
