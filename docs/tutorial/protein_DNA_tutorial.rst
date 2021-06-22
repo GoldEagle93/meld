@@ -85,7 +85,7 @@ First things first, import the necessary modules:
 .. code-block:: python
 
     import numpy as np
-    from meld.remd import ladder, adaptor, master_runner
+    from meld.remd import ladder, adaptor, leader
     from meld import comm, vault
     from meld import system
     from meld import parse
@@ -94,3 +94,27 @@ First things first, import the necessary modules:
     from restraints import *
     
 
+Next up, specify number of replicas, number of steps and how often to save data into file:
+Here we are running 30 replicas, each for 20000 steps and we are saving data every 100 steps.
+
+.. code-block:: python
+
+    N_REPLICAS = 30
+    N_STEPS = 20000
+    BLOCK_SIZE = 100
+
+We can start one meld simulation from N initial structures (where N <= "N_REPLICAS"). Defining states based on each input template is done as follows:
+
+.. code-block:: python
+
+    def gen_state_templates(index, templates):
+        n_templates = len(templates)
+        # print index,n_templates,index%n_templates
+        a = system.ProteinMoleculeFromPdbFile(templates[index%n_templates])
+        b = system.SystemBuilder(forcefield="ff14sbside")
+        c = b.build_system_from_molecules([a])
+        pos = c._coordinates
+        vel = np.zeros_like(pos)
+        alpha = index / (N_REPLICAS - 1.0)
+        energy = 0
+        return system.SystemState(pos, vel, alpha, energy,[999,999,999] )
