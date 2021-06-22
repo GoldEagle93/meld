@@ -103,7 +103,8 @@ Here we are running 30 replicas, each for 20000 steps and we are saving data eve
     N_STEPS = 20000
     BLOCK_SIZE = 100
 
-We can start one meld simulation from N initial structures (where N <= "N_REPLICAS"). Defining states based on each input template is done as follows:
+We can start one meld simulation from N initial structures (where N <= ``N_REPLICAS``). If there is one initial structure, it will be replicated for each replica. If there is more, they will be copied if necessary to reach ``N_REPLICAS``.
+Defining states based on each input template is done as follows:
 
 .. code-block:: python
 
@@ -118,3 +119,28 @@ We can start one meld simulation from N initial structures (where N <= "N_REPLIC
         alpha = index / (N_REPLICAS - 1.0)
         energy = 0
         return system.SystemState(pos, vel, alpha, energy,[999,999,999] )
+        
+Finally the ``setup_system`` function will define the simulation setup based input states and restraint data:
+
+.. code-block:: python
+
+    def setup_system():
+        templates = glob.glob('TEMPLATES/*.pdb')
+        p = system.ProteinMoleculeFromPdbFile(templates[0])
+        b = system.SystemBuilder(forcefield="ff14sbside")
+        s = b.build_system_from_molecules([p])
+        
+Define a temprature range and alpha range at which the temperature is applied. Here we want the temprature to scale from 300K to 500K from alpha = 0 to alpha 0.5 which correspond to the first half of replicas:
+
+.. code-block:: python
+
+        s.temperature_scaler = system.GeometricTemperatureScaler(0.0, 0.5, 300., 500.)
+
+define a constant force scaler to restraint protein C alpha distances based in ``protein-contacts.dat``:
+
+.. code-block:: python
+
+        const_scaler = s.restraints.create_scaler('constant')
+        dist = keep_fixed_distance('1azp_contacts.dat',s,scaler=const_scaler)
+        s.restraints.add_selectively_active_collection(dist,int(len(dist)))
+
