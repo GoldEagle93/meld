@@ -136,7 +136,7 @@ Define a temprature range and alpha range at which the temperature is applied. H
 
         s.temperature_scaler = system.GeometricTemperatureScaler(0.0, 0.5, 300., 500.)
 
-define a constant force scaler to restraint protein C alpha distances based in ``protein-contacts.dat``:
+define a constant force scaler to restrain protein C alpha distances based on ``protein-contacts.dat``:
 
 .. code-block:: python
 
