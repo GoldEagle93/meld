@@ -10,7 +10,7 @@ In this tutorial we are going to prepare a setup script and other necessary file
 .. _1azp: https://www.rcsb.org/structure/1AZP
 
 * DNA-sequence.dat
-* DNA-hbonds.dat
+* hbondsDNA.dat
 * secondary-structure.dat
 * protein-DNA-contacts.dat
 * protein-contacts.dat
@@ -137,10 +137,30 @@ Define a temprature range and alpha range at which the temperature is applied. H
         s.temperature_scaler = system.GeometricTemperatureScaler(0.0, 0.5, 300., 500.)
 
 define a constant force scaler to restrain protein C alpha distances based on ``protein-contacts.dat``:
+``protein_scaler`` is a force with fixed force constant that and ``protein_contacts`` is a collection of restraints.
+Notice that when adding this collection of restraints, we are providing ``int(len(protein_contacts)*0.9)`` as a second arguement since we wand meld to satisfy only 90% of this data. i.e. we are allowing 10 of protein contacts to be disconnected at a time.
 
 .. code-block:: python
 
-        const_scaler = s.restraints.create_scaler('constant')
-        dist = keep_fixed_distance('1azp_contacts.dat',s,scaler=const_scaler)
-        s.restraints.add_selectively_active_collection(dist,int(len(dist)))
+        protein_scaler = s.restraints.create_scaler('constant')
+        protein_contacts = keep_fixed_distance('protein-contacts.dat',s,scaler=const_scaler)
+        s.restraints.add_selectively_active_collection(protein_contacts,int(len(protein_contacts)*0.9))
 
+At this point Meld will generate the ``hbondsDNA.dat`` file based on ``sequence.dat`` and the input structure. Then the baseparing contacts are added as restraints in a similar fashion to protein contacts. Unlike ``protein_scaler``, the ``hbond_scaler`` is not a constant force and is only active at alpha 0.9 to 1.0 to ensure the DNA doesn't melt at high replicas.
+
+.. code-block:: python
+
+        sequenceDNA = readSeq('DNA-sequence.dat')
+        make_hbond_restraint_file(sequenceDNA,0)
+        hbonds_scaler = s.restraints.create_scaler('nonlinear', alpha_min=0.9, alpha_max=1.0, factor=4.0)
+        hbonds = keep_fixed_distance('hbondsDNA.dat',s,scaler=hbonds_scaler)
+        s.restraints.add_selectively_active_collection(hbonds_scaler,int(len(hbonds_scaler)*0.9))
+        
+In addition to base pairing, we can also restraint the DNA in its cartesian coordinates to keep its conformation near-natinve and facilitate binding. Here, any atom with a name from ``atoms`` will be restrained to its starting coordinates. We can use the same fixed force from ``protein_scaler``.
+
+.. code-block:: python
+
+        DNA_positions = make_cartesian_collections(s, protein_scaler, range(1,16),atoms=["C1'","C2","C2'","C3'","C4","C4'","C5","C5'","C6","C7","C8","DA3","N1","N2","N3","N4","N6","N7","N9","O2","O3'","O4","O4'","O5'","O6","OP1","OP2","P"])
+        s.restraints.add_as_always_active_list(DNA_positions)
+        
+Finally apply restraints based on the contacts between protein and DNA.
