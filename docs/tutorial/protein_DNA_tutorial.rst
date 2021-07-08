@@ -129,7 +129,9 @@ Finally the ``setup_system`` function will define the simulation setup based inp
         p = system.ProteinMoleculeFromPdbFile(templates[0])
         b = system.SystemBuilder(forcefield="ff14sbside")
         s = b.build_system_from_molecules([p])
-        
+
+All of the following sections are part of the ``setup_system`` function.
+
 Define a temprature range and alpha range at which the temperature is applied. Here we want the temprature to scale from 300K to 500K from alpha = 0 to alpha 0.5 which correspond to the first half of replicas:
 
 .. code-block:: python
@@ -160,8 +162,8 @@ In addition to base pairing, we can also restraint the DNA in its cartesian coor
 
 .. code-block:: python
 
-            DNA_positions = make_cartesian_collections(s, protein_scaler, range(1,16),atoms=["C1'","C2","C2'","C3'","C4","C4'","C5","C5'","C6","C7","C8","DA3","N1","N2","N3","N4","N6","N7","N9","O2","O3'","O4","O4'","O5'","O6","OP1","OP2","P"])
-            s.restraints.add_as_always_active_list(DNA_positions)
+        DNA_positions = make_cartesian_collections(s, protein_scaler, range(1,16),atoms=["C1'","C2","C2'","C3'","C4","C4'","C5","C5'","C6","C7","C8","DA3","N1","N2","N3","N4","N6","N7","N9","O2","O3'","O4","O4'","O5'","O6","OP1","OP2","P"])
+        s.restraints.add_as_always_active_list(DNA_positions)
 
 We are also not very interested in drastic changes to the secondary structure of the protein so we will use ``secondary-structure.dat`` to keep it as it is.
 
