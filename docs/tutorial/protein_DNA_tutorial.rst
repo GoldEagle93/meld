@@ -160,8 +160,8 @@ In addition to base pairing, we can also restraint the DNA in its cartesian coor
 
 .. code-block:: python
 
-        DNA_positions = make_cartesian_collections(s, protein_scaler, range(1,16),atoms=["C1'","C2","C2'","C3'","C4","C4'","C5","C5'","C6","C7","C8","DA3","N1","N2","N3","N4","N6","N7","N9","O2","O3'","O4","O4'","O5'","O6","OP1","OP2","P"])
-        s.restraints.add_as_always_active_list(DNA_positions)
+            DNA_positions = make_cartesian_collections(s, protein_scaler, range(1,16),atoms=["C1'","C2","C2'","C3'","C4","C4'","C5","C5'","C6","C7","C8","DA3","N1","N2","N3","N4","N6","N7","N9","O2","O3'","O4","O4'","O5'","O6","OP1","OP2","P"])
+            s.restraints.add_as_always_active_list(DNA_positions)
 
 We are also not very interested in drastic changes to the secondary structure of the protein so we will use ``secondary-structure.dat`` to keep it as it is.
 
@@ -208,3 +208,23 @@ lastly, some run options need to be specified which usually don't need modificat
         options.use_bigger_timestep = True # MD timestep (4.0 fs)
         options.cutoff = 1.8 # cutoff in nm
         options.soluteDielectric = 1.
+        options.use_amap = False # correction to FF12SB
+        options.amap_beta_bias = 1.0
+        options.timesteps = 11111 # number of MD steps per exchange
+        options.minimize_steps = 20000 # init minimization steps
+        
+        store = vault.DataStore(s.n_atoms, N_REPLICAS, s.get_pdb_writer(), block_size=BLOCK_SIZE)
+        store.initialize(mode='w')
+        store.save_system(s)
+        store.save_run_options(options)
+        l = ladder.NearestNeighborLadder(n_trials=48)
+        policy = adaptor.AdaptationPolicy(2.0, 50, 50)
+        a = adaptor.EqualAcceptanceAdaptor(n_replicas=N_REPLICAS, adaptation_policy=policy)
+        remd_runner = master_runner.MasterReplicaExchangeRunner(N_REPLICAS, max_steps=N_STEPS, ladder=l, adaptor=a)
+        store.save_remd_runner(remd_runner)
+        c = comm.MPICommunicator(s.n_atoms, N_REPLICAS)
+        store.save_communicator(c)
+        states = [gen_state_templates(i,templates) for i in range(N_REPLICAS)]
+        store.save_states(states, 0)
+        store.save_data_store()
+        return s.n_atoms
