@@ -130,7 +130,7 @@ Finally the ``setup_system`` function will define the simulation setup based inp
         b = system.SystemBuilder(forcefield="ff14sbside")
         s = b.build_system_from_molecules([p])
 
-All of the following sections are part of the ``setup_system`` function.
+**All of the following sections are part of the ``setup_system`` function.**
 
 Define a temprature range and alpha range at which the temperature is applied. Here we want the temprature to scale from 300K to 500K from alpha = 0 to alpha 0.5 which correspond to the first half of replicas:
 
