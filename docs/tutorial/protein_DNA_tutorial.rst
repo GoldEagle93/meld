@@ -162,5 +162,49 @@ In addition to base pairing, we can also restraint the DNA in its cartesian coor
 
         DNA_positions = make_cartesian_collections(s, protein_scaler, range(1,16),atoms=["C1'","C2","C2'","C3'","C4","C4'","C5","C5'","C6","C7","C8","DA3","N1","N2","N3","N4","N6","N7","N9","O2","O3'","O4","O4'","O5'","O6","OP1","OP2","P"])
         s.restraints.add_as_always_active_list(DNA_positions)
-        
-Finally apply restraints based on the contacts between protein and DNA.
+
+We are also not very interested in drastic changes to the secondary structure of the protein so we will use ``secondary-structure.dat`` to keep it as it is.
+
+.. code-block:: python
+
+        ss_scaler = s.restraints.create_scaler('constant')
+        ss_rests = parse.get_secondary_structure_restraints(filename='secondary-structure.dat', system=s,ramp=LinearRamp(0,100,0,1), scaler=ss_scaler,
+                torsion_force_constant=2.5, distance_force_constant=2.5)
+        s.restraints.add_selectively_active_collection(ss_rests, int(len(ss_rests) * 0.96))
+
+Finally apply restraints based on the contacts between protein and DNA. In this protocol we will guide all the ``CB`` atoms of the protein towards the ``P`` atoms of the DNA with a center of mass restraints. The distance restraint is set to 5nm at alpha 0.7 and scales to 7nm at alpha 1.0. Note that since not every residue has a ``CB`` atom, we exclude those that don't.
+
+.. code-block:: python
+
+        names  = np.array(s.atom_names)
+        resid = np.array(s.residue_numbers)    
+        select = names == 'CB'
+        cb_resids = resid[select]
+
+        conf_rest = []
+        group1 = []
+        group2 = []
+        for i in range(2,9):
+            group1.append( (i,"P") )
+        for i in range(10,17):
+            group1.append( (i,"P") )
+        for j in cb_resids:
+            group2.append( (j,"CB") )
+        protein_DNA_scaler = s.restraints.create_scaler('nonlinear',alpha_min=0.7,alpha_max=1.0, factor=4.0, strength_at_alpha_min=1.0, strength_at_alpha_max=0.5)
+        positioner = s.restraints.create_scaler('linear_positioner',alpha_min=0.7, alpha_max=1.0, pos_min=5., pos_max=7.) 
+        conf_rest.append(s.restraints.create_restraint('com', protein_DNA_scaler,ramp=LinearRamp(0,100,0,1), 
+                                                           force_const=75.0,group1=group1,group2=group2,
+                                                           distance =positioner,weights1=None, weights2=None, dims='xyz'))
+        s.restraints.add_as_always_active_list(conf_rest)
+
+lastly, some run options need to be specified which usually don't need modification. These include implicit solvent model (``gbNeck2`` here) and time step of 4fs enabled by hydrogen mass repartitioning.
+
+.. code-block:: python
+
+        options = system.RunOptions()
+        options.implicit_solvent_model = 'gbNeck2'
+        options.remove_com = False
+        options.use_big_timestep = False # MD timestep (3.3 fs)
+        options.use_bigger_timestep = True # MD timestep (4.0 fs)
+        options.cutoff = 1.8 # cutoff in nm
+        options.soluteDielectric = 1.
