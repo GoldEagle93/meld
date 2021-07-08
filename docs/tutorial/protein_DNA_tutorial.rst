@@ -230,3 +230,33 @@ lastly, some run options need to be specified which usually don't need modificat
         store.save_states(states, 0)
         store.save_data_store()
         return s.n_atoms
+        
+Calling the ``setup_system`` function will run all the code above.
+
+.. code-block:: python
+
+        setup_system()
+
+It is time to run the ``setupMELD.py`` script from terminal with meld loaded and ready to go:
+
+.. code-block:: bash
+
+        python setupMELD.py
+        
+The script should excecute with no issues and it will generate a new ``Data`` directory.
+To run the meld job you can use:
+
+.. code-block:: bash
+
+        if [ -e remd.log ]; then       #If there is a remd.log we are conitnuing a killed simulation
+          prepare_restart --prepare-run #so we need to prepare_restart
+            fi
+        srun --mpi=pmix_v3 launch_remd --debug
+        
+This run can take up to two days to conclude on 30 RTX 2080ti GPUs.
+Once done, you can extract the trajectories with the following command:
+
+.. code-block:: bash
+
+        b=`perl -e 'printf("%02i", $ARGV[0]);' ${SLURM_ARRAY_TASK_ID}`
+        extract_trajectory extract_traj_dcd --replica ${SLURM_ARRAY_TASK_ID} trajectory.$b.dcd
