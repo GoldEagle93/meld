@@ -12,7 +12,6 @@ In this tutorial we are going to prepare a setup script and other necessary file
 * DNA-sequence.dat
 * hbondsDNA.dat
 * secondary-structure.dat
-* protein-DNA-contacts.dat
 * protein-contacts.dat
 * starting-structure.pdb
 * restraints.py
