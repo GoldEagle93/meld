@@ -109,7 +109,6 @@ Defining states based on each input template is done as follows:
 
     def gen_state_templates(index, templates):
         n_templates = len(templates)
-        # print index,n_templates,index%n_templates
         a = system.ProteinMoleculeFromPdbFile(templates[index%n_templates])
         b = system.SystemBuilder(forcefield="ff14sbside")
         c = b.build_system_from_molecules([a])
@@ -144,7 +143,7 @@ Notice that when adding this collection of restraints, we are providing ``int(le
 .. code-block:: python
 
         protein_scaler = s.restraints.create_scaler('constant')
-        protein_contacts = keep_fixed_distance('protein-contacts.dat',s,scaler=const_scaler)
+        protein_contacts = keep_fixed_distance('protein-contacts.dat',s,scaler=protein_scaler)
         s.restraints.add_selectively_active_collection(protein_contacts,int(len(protein_contacts)*0.9))
 
 At this point Meld will generate the ``hbondsDNA.dat`` file based on ``sequence.dat`` and the input structure. Then the baseparing contacts are added as restraints in a similar fashion to protein contacts. Unlike ``protein_scaler``, the ``hbond_scaler`` is not a constant force and is only active at alpha 0.9 to 1.0 to ensure the DNA doesn't melt at high replicas.
@@ -221,7 +220,7 @@ lastly, some run options need to be specified which usually don't need modificat
         l = ladder.NearestNeighborLadder(n_trials=48)
         policy = adaptor.AdaptationPolicy(2.0, 50, 50)
         a = adaptor.EqualAcceptanceAdaptor(n_replicas=N_REPLICAS, adaptation_policy=policy)
-        remd_runner = master_runner.MasterReplicaExchangeRunner(N_REPLICAS, max_steps=N_STEPS, ladder=l, adaptor=a)
+        remd_runner = leader.LeaderReplicaExchangeRunner(N_REPLICAS, max_steps=N_STEPS, ladder=l, adaptor=a)
         store.save_remd_runner(remd_runner)
         c = comm.MPICommunicator(s.n_atoms, N_REPLICAS)
         store.save_communicator(c)
