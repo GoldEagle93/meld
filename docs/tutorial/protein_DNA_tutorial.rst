@@ -253,13 +253,11 @@ To run the meld job you can use:
         srun --mpi=pmix_v3 launch_remd --debug
         
 This run can take up to two days to conclude on 30 RTX 2080ti GPUs.
-Once done, you can extract the trajectories with the following command:
-It will generate a dcd file for each replica.
+Once done, you can extract the trajectory of any replica with a command similar to the following:
 
 .. code-block:: bash
 
-        b=`perl -e 'printf("%02i", $ARGV[0]);' ${SLURM_ARRAY_TASK_ID}`
-        extract_trajectory extract_traj_dcd --replica ${SLURM_ARRAY_TASK_ID} trajectory.$b.dcd
+        extract_trajectory extract_traj_dcd --replica 00 trajectory.00.dcd
 
 You can also get the last frame of each replica directly without extracting trajectories:
 
