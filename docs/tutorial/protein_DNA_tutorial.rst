@@ -13,6 +13,7 @@ In this tutorial we are going to prepare a setup script and other necessary file
 * hbondsDNA.dat
 * secondary-structure.dat
 * protein-contacts.dat
+* protein-DNA-contacts
 * starting-structure.pdb
 * restraints.py
 * setupMELD.py
