@@ -146,15 +146,14 @@ Notice that when adding this collection of restraints, we are providing ``int(le
         protein_contacts = keep_fixed_distance('protein-contacts.dat',s,scaler=protein_scaler)
         s.restraints.add_selectively_active_collection(protein_contacts,int(len(protein_contacts)*0.9))
 
-At this point Meld will generate the ``hbondsDNA.dat`` file based on ``sequence.dat`` and the input structure. Then the baseparing contacts are added as restraints in a similar fashion to protein contacts. Unlike ``protein_scaler``, the ``hbond_scaler`` is not a constant force and is only active at alpha 0.9 to 1.0 to ensure the DNA doesn't melt at high replicas.
+At this point Meld will generate the ``hbondsDNA.dat`` file based on ``sequence.dat`` and the input structure. Then the baseparing contacts are added as restraints in a similar fashion to protein contacts. We can safely reuse ``protein_scaler`` as we want the same kind of force to be applied here keeping the two strands together.
 
 .. code-block:: python
 
         sequenceDNA = readSeq('DNA-sequence.dat')
         make_hbond_restraint_file(sequenceDNA,0)
-        hbonds_scaler = s.restraints.create_scaler('nonlinear', alpha_min=0.9, alpha_max=1.0, factor=4.0)
-        hbonds = keep_fixed_distance('hbondsDNA.dat',s,scaler=hbonds_scaler)
-        s.restraints.add_selectively_active_collection(hbonds_scaler,int(len(hbonds_scaler)*0.9))
+        hbonds = keep_fixed_distance('hbondsDNA.dat',s,scaler=protein_scaler)
+        s.restraints.add_selectively_active_collection(hbonds,int(len(hbonds)*0.9))
         
 In addition to base pairing, we can also restraint the DNA in its cartesian coordinates to keep its conformation near-natinve and facilitate binding. Here, any atom with a name from ``atoms`` will be restrained to its starting coordinates. We can use the same fixed force from ``protein_scaler``.
 
@@ -172,7 +171,9 @@ We are also not very interested in drastic changes to the secondary structure of
                 torsion_force_constant=2.5, distance_force_constant=2.5)
         s.restraints.add_selectively_active_collection(ss_rests, int(len(ss_rests) * 0.96))
 
-Finally apply restraints based on the contacts between protein and DNA. In this protocol we will guide all the ``CB`` atoms of the protein towards the ``P`` atoms of the DNA with a center of mass restraints. The distance restraint is set to 5nm at alpha 0.7 and scales to 7nm at alpha 1.0. Note that since not every residue has a ``CB`` atom, we exclude those that don't.
+Finally apply restraints based on the contacts between protein and DNA. In this protocol we are using two sets of restraints:
+In one set we will guide all the ``CB`` atoms of the protein towards the ``P`` atoms of the DNA with a center of mass restraints. The distance restraint is set to 5nm at alpha 0.7 and scales to 7nm at alpha 1.0. Note that since not every residue has a ``CB`` atom, we exclude those that don't.
+In the second set, we define a new scaler and apply it to the contacting residues from protein and DNA from ``protein-DNA-contacts.dat``.
 
 .. code-block:: python
 
@@ -196,6 +197,11 @@ Finally apply restraints based on the contacts between protein and DNA. In this 
                                                            force_const=75.0,group1=group1,group2=group2,
                                                            distance =positioner,weights1=None, weights2=None, dims='xyz'))
         s.restraints.add_as_always_active_list(conf_rest)
+
+        protein_DNA_scaler = s.restraints.create_scaler('nonlinear', alpha_min=0.4, alpha_max=1.0, factor=4.0)
+        protein_DNA_contacts = get_dist_restraints('protein-DNA-contacts.dat',s,scaler= protein_DNA_scaler)
+        s.restraints.add_selectively_active_collection(protein_DNA_contacts,int(len(protein_DNA_contacts)*0.9))
+
 
 lastly, some run options need to be specified which usually don't need modification. These include implicit solvent model (``gbNeck2`` here) and time step of 4fs enabled by hydrogen mass repartitioning.
 
